@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Arbitraje</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f9f9f9; color: #333; display: flex; align-items: center; justify-content: center; height: 100vh; }
+    .container { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); width: 320px; display: flex; flex-direction: column; align-items: center; }
+    input[type="number"] { width: 100%; padding: 8px; margin: 6px 0; border: 1px solid #ccc; border-radius: 4px; }
+    button { width: 100%; padding: 10px; margin-top: 10px; border: none; background: #007BFF; color: #fff; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    .resultado { margin-top: 15px; padding: 10px; border-radius: 4px; font-size: 0.9em; }
+    .arbitraje { background: #d4edda; color: #155724; }
+    .no-arbitraje { background: #f8d7da; color: #721c24; }
+    h2, h3 {
+      text-align: center;
+    }
+    label, input, button, .resultado {
+      width: 100%;
+      text-align: center;
+    }
+    input {
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Calculadora de APUESTAS</h2>
+    <h3>DANI</h3>
+    <label for="oddA">Cuota A:</label>
+    <input type="number" step="any" id="oddA" placeholder="ejemplo 2.10">
+
+    <label for="oddB">Cuota B, apuesta contraria:</label>
+    <input type="number" step="any" id="oddB" placeholder="ejemplo 1.95">
+
+    <label for="stake">Inversión total (€):</label>
+    <input type="number" step="any" id="stake" placeholder="e.g. 100" value="100">
+
+    <button id="calculateBtn" type="button">Calcular</button>
+    <div id="output" class="resultado"></div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const btn = document.getElementById('calculateBtn');
+      const outputDiv = document.getElementById('output');
+
+      btn.addEventListener('click', function() {
+        const oddA = parseFloat(document.getElementById('oddA').value);
+        const oddB = parseFloat(document.getElementById('oddB').value);
+        const stake = parseFloat(document.getElementById('stake').value);
+
+        if (!oddA || !oddB || !stake) {
+          outputDiv.className = 'resultado no-arbitraje';
+          outputDiv.innerHTML = '<strong>Rellena todos los campos correctamente.</strong>';
+          return;
+        }
+
+        const invA = 1 / oddA;
+        const invB = 1 / oddB;
+        const sumInv = invA + invB;
+
+        if (sumInv < 1) {
+          const betA = (invA / sumInv) * stake;
+          const betB = (invB / sumInv) * stake;
+          const returnA = betA * oddA;
+          const returnB = betB * oddB;
+          const profitA = returnA - stake;
+          const profitB = returnB - stake;
+
+          outputDiv.className = 'resultado arbitraje';
+          outputDiv.innerHTML = `
+            <strong>¡SE PUEDE APOSTAR!</strong><br>
+            Probabilidad total: ${(sumInv*100).toFixed(2)}%<br>
+            Apuesta a A: €${betA.toFixed(2)} → Cobro: €${returnA.toFixed(2)} → Ganancia: €${profitA.toFixed(2)}<br>
+            Apuesta a B: €${betB.toFixed(2)} → Cobro: €${returnB.toFixed(2)} → Ganancia: €${profitB.toFixed(2)}
+          `;
+        } else {
+          outputDiv.className = 'resultado no-arbitraje';
+          outputDiv.innerHTML = `
+            <strong>NO se puede apostar.</strong><br>
+            Probabilidad total: ${(sumInv*100).toFixed(2)}% (>100%)
+          `;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
